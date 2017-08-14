@@ -13,9 +13,10 @@ public class ParameterSet {
     public double[][] alpha;
     public double[][] beta;
     public double study_length;
+    public int numCases;
 
     public void insert_db(Connection con) {
-        String query = "insert into parameter_sets values (default,default,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String query = "insert into parameter_sets values (default,default,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try {
             PreparedStatement stmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 
@@ -32,6 +33,7 @@ public class ParameterSet {
             stmt.setDouble(11, beta[1][0]);
             stmt.setDouble(12, beta[1][1]);
             stmt.setDouble(13, study_length);
+            stmt.setInt(14, numCases);
 
             stmt.executeUpdate();
 
@@ -44,13 +46,14 @@ public class ParameterSet {
             }
 
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("1: " + e);
         }
     }
 
     public ParameterSet(long crun_id, double ctheta_s, double ctheta_i0, double ctheta_i1, 
             double calpha00, double calpha01, double calpha10, double calpha11,
-            double cbeta00, double cbeta01, double cbeta10, double cbeta11, double cstudy_length) {
+            double cbeta00, double cbeta01, double cbeta10, double cbeta11, 
+            double cstudy_length, int cnumCases) {
 
         run_id = crun_id;
         theta_s = ctheta_s;
@@ -58,7 +61,7 @@ public class ParameterSet {
         alpha = new double[][] {{calpha00,calpha01},{calpha10,calpha11}};
         beta = new double[][] {{cbeta00,cbeta01},{cbeta10,cbeta11}};
         study_length = cstudy_length;
-
+        numCases = cnumCases;
     }
 
 }

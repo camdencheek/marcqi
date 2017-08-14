@@ -27,25 +27,25 @@ public class Generate {
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost/revgen?user=root&password=password");
             con.setAutoCommit(false);
 
-            Run run = new Run("Test Run");
-            long run_id = run.insert_db(con);
+            Run run = new Run("MARCQI defaults, MARCQI sample size, 1/4 effect size");
+            long runID = run.insert_db(con);
 
             ExecutorService executor = Executors.newFixedThreadPool(3);
 
             AtomicInteger simulationsRemaining = new AtomicInteger(0);
             int totalSimulations = 0;
 
-            double[] i0 = new double[] {0.0,0.05,0.1,0.15,0.2,0.25,0.3};
-            double[] i1 = new double[] {0.0,0.05,0.1,0.15,0.2,0.25,0.3};
-            for (double theta_i0 : i0) {
-                for (double theta_i1 : i1) {
+            for (double theta_i0 = 0; theta_i0 <= 0.3; theta_i0 += 0.05) {
+                for (double theta_i1 = 0; theta_i1 <= 0.3; theta_i1 += 0.05) {
                     ParameterSet params = new ParameterSet(
-                            run_id,
-                            0.5,
-                            theta_i0, theta_i1,
-                            1.0, 1.5, 1.5, 2.0,
-                            80, 100, 100, 120, 
-                            10);
+                            runID, // database ID of the current run
+                            0.45, // Proportion of cases male
+                            theta_i0, theta_i1, // θ_I_F and θ_I_M
+                            0.71, 0.71, 0.71, 0.71, // alpha 00, 01, 10, 11
+                            182, 45, 171, 43, // beta 00, 01, 10, 11
+                            5,  // Length of study
+                            //20863); // Number of cases per simulation
+                            799); // Number of cases per simulation
 
                     params.insert_db(con);
                     con.commit();
@@ -53,11 +53,10 @@ public class Generate {
                     CaseGenerator gen = new CaseGenerator(params);
 
                     int nSims = 1000;
-                    int nCases = 1000;
                     for (int i = 0; i < nSims; i++) {
                         simulationsRemaining.incrementAndGet(); 
                         totalSimulations++;
-                        SimulationRunner runner = new SimulationRunner(params, nCases, run_id, con, simulationsRemaining);
+                        SimulationRunner runner = new SimulationRunner(params, runID, con, simulationsRemaining);
                         executor.execute(runner);
                     }
                 }
@@ -76,7 +75,7 @@ public class Generate {
 
 
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Generate: " + e);
         }
     }
 }

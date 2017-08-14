@@ -15,7 +15,6 @@ public class CaseGenerator {
     BinomialDistribution sex_gen;
     BinomialDistribution[] implant_gen;
     WeibullDistribution[][] ttr_gen;
-    UniformRealDistribution ttc_gen;
 
     public CaseGenerator(ParameterSet cparams) {
         params = cparams;
@@ -31,23 +30,20 @@ public class CaseGenerator {
                         new WeibullDistribution(mt, params.alpha[0][1], params.beta[0][1]) },
                     {new WeibullDistribution(mt, params.alpha[1][0], params.beta[1][0]),
                         new WeibullDistribution(mt, params.alpha[1][1], params.beta[1][1]) }};
-
-        ttc_gen = new UniformRealDistribution(mt, 0, params.study_length);
     }
 
-    public Case generate() {
+    public Case generateOne() {
         int sex = sex_gen.sample();
         int implant = implant_gen[sex].sample();
-        double ttr = ttr_gen[sex][implant].sample();
-        double ttc = ttc_gen.sample();
+        float ttr = (float) ttr_gen[sex][implant].sample();
         
-        return new Case(sex, implant, ttr, ttc);
+        return new Case(sex, implant, ttr);
     }
 
-    public List<Case> generate(int n) {
+    public List<Case> generate() {
         List<Case> cases = new ArrayList<Case>();
-        for (int i = 0; i < n; i++) {
-            cases.add(generate());
+        for (int i = 0; i < params.numCases; i++) {
+            cases.add(generateOne());
         }
         return cases;
     } 

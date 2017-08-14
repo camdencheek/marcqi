@@ -1,0 +1,120 @@
+#!/usr/bin/python3
+
+import pymysql.cursors
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+from sqlalchemy import create_engine
+import pandas as pd
+from matplotlib import cm
+from matplotlib.ticker import MaxNLocator
+import scipy.interpolate as si
+import sys
+
+def plot3d(x,y,z, ax):
+
+    test_x = np.linspace(0,0.3,100)
+    test_y = np.linspace(0,0.3,100)
+    X,Y = np.meshgrid(x.unique(),y.unique())
+    # X,Y = np.meshgrid(test_x,test_y)
+    Z = si.griddata(list(zip(x.values,y.values)), z, (X,Y), method='linear')
+
+    surf = ax.plot_wireframe(X, Y, Z)
+
+def main(args):
+
+    engine = create_engine("mysql+pymysql://root:password@localhost/revgen")
+
+    sex_implant_sql = """
+        select 	theta_i0,
+                theta_i1,
+                avg(d.sex_implant = 2) as sex_to_implant,
+                avg(d.sex_implant = 3) as implant_to_sex
+        from
+            ( 	select 	graph_results.*,
+                        parameter_sets.*
+                from	graph_results
+                    inner join simulations on graph_results.simulation_id=simulations.id
+                    inner join parameter_sets on simulations.parameter_set_id=parameter_sets.id
+                where parameter_sets.run_id = {run_id}
+                    and sex_implant > 0
+            ) as d
+        group by id;
+     """.format(run_id = args[1])
+
+
+    sex_ttr_sql = """
+        select 	theta_i0,
+                theta_i1,
+                avg(d.sex_ttr = 2) as sex_to_ttr,
+                avg(d.sex_ttr = 3) as ttr_to_sex
+        from
+            ( 	select 	graph_results.*,
+                        parameter_sets.*
+                from	graph_results
+                    inner join simulations on graph_results.simulation_id=simulations.id
+                    inner join parameter_sets on simulations.parameter_set_id=parameter_sets.id
+                where parameter_sets.run_id = {run_id}
+                    and sex_ttr > 0
+            ) as d
+        group by id;
+     """.format(run_id = args[1])
+
+
+    implant_ttr_sql = """
+        select 	theta_i0,
+                theta_i1,
+                avg(d.implant_ttr = 2) as implant_to_ttr,
+                avg(d.implant_ttr = 3) as ttr_to_implant
+        from
+            ( 	select 	graph_results.*,
+                        parameter_sets.*
+                from	graph_results
+                    inner join simulations on graph_results.simulation_id=simulations.id
+                    inner join parameter_sets on simulations.parameter_set_id=parameter_sets.id
+                where parameter_sets.run_id = {run_id}
+                    and implant_ttr > 0
+            ) as d
+        group by id;
+     """.format(run_id = args[1])
+
+    sex_implant_df = pd.read_sql_query(sex_implant_sql, engine)
+    sex_ttr_df = pd.read_sql_query(sex_ttr_sql, engine)
+    implant_ttr_df = pd.read_sql_query(implant_ttr_sql, engine)
+    fig1 = plt.figure()
+    ax11 = fig1.add_subplot(231, projection='3d')
+    ax21 = fig1.add_subplot(234, projection='3d')
+    # ax12 = fig1.add_subplot(232, projection='3d')
+    # ax22 = fig1.add_subplot(235, projection='3d')
+    # ax13 = fig1.add_subplot(233, projection='3d')
+    # ax23 = fig1.add_subplot(236, projection='3d')
+    plot3d(sex_implant_df["theta_i0"], sex_implant_df["theta_i1"], sex_implant_df["sex_to_implant"], ax11)
+    plot3d(sex_implant_df["theta_i0"], sex_implant_df["theta_i1"], sex_implant_df["implant_to_sex"], ax21)
+    # plot3d(sex_ttr_df["theta_i0"], sex_ttr_df["theta_i1"], sex_ttr_df["sex_to_ttr"], ax12)
+    # plot3d(sex_ttr_df["theta_i0"], sex_ttr_df["theta_i1"], sex_ttr_df["ttr_to_sex"], ax22)
+    # plot3d(implant_ttr_df["theta_i0"], implant_ttr_df["theta_i1"], implant_ttr_df["implant_to_ttr"], ax13)
+    # plot3d(implant_ttr_df["theta_i0"], implant_ttr_df["theta_i1"], implant_ttr_df["ttr_to_implant"], ax23)
+
+    # ax1.set_title("Sex -> Implant")
+    # ax1.set_xlabel("theta_I_F")
+    # ax1.set_ylabel("theta_I_M")
+    # ax1.set_zlim(0.0,1.0)
+    # plot3d(df["theta_i0"], df["theta_i1"], df["sex_ttr"], ax2)
+    # ax2.set_title("Sex -> TTR")
+    # ax2.set_xlabel("theta_I_F")
+    # ax2.set_ylabel("theta_I_M")
+    # ax2.set_zlim(0.0,1.0)
+    # plot3d(df["theta_i0"], df["theta_i1"], df["implant_ttr"], ax3)
+    # ax3.set_title("Implant -> TTR")
+    # ax3.set_xlabel("theta_I_F")
+    # ax3.set_ylabel("theta_I_M")
+    # ax3.set_zlim(0.0,1.0)
+    plt.show(1)
+
+
+
+
+if __name__ == "__main__":
+    main(sys.argv)
+

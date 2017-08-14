@@ -18,13 +18,7 @@ public class Utils {
         int percent = (int) (current * 100 / total);
         string
             .append('\r')
-            .append(String.join("", Collections.nCopies(percent == 0 ? 2 : 2 - (int) (Math.log10(percent)), " ")))
-            .append(String.format(" %d%% [", percent))
-            .append(String.join("", Collections.nCopies(percent, "=")))
-            .append('>')
-            .append(String.join("", Collections.nCopies(100 - percent, " ")))
-            .append(']')
-            .append(String.join("", Collections.nCopies((int) (Math.log10(total)) - (int) (Math.log10(current)), " ")))
+            .append(String.format("%d%%", percent))
             .append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
 
         System.out.print(string);

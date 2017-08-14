@@ -9,18 +9,17 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
+import java.lang.Thread;
 
 public class Simulation {
     ParameterSet params;
-    int nCases;
     List<Case> cases;
 
-    public Simulation(ParameterSet p, int n) {
+    public Simulation(ParameterSet p) {
         params = p;
-        nCases = n;
 
         CaseGenerator gen = new CaseGenerator(params);
-        cases = gen.generate(nCases);
+        cases = gen.generate();
     }
 
 
@@ -44,7 +43,8 @@ public class Simulation {
                 System.out.println(f);
             }
 
-            PreparedStatement case_stmt = con.prepareStatement("insert into cases values (default, ?, ?, ?, ?, ?)");
+
+            PreparedStatement case_stmt = con.prepareStatement("insert into cases values (default, ?, ?, ?, ?)");
             for (Case iCase : cases) {
                 iCase.add_to_batch(case_stmt, simulation_id);
             }

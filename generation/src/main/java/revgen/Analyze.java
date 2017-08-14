@@ -17,7 +17,13 @@ public class Analyze {
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost/revgen?user=root&password=password");
 
 
-            long run_id = 11;
+            String latestRunSql = "SELECT id FROM runs ORDER BY id DESC LIMIT 1";
+            Statement runStmt = con.createStatement();
+            ResultSet runRs = runStmt.executeQuery(latestRunSql);
+            runRs.next();
+            long run_id = runRs.getLong("id");
+            
+            //long run_id = 11;
 
             String sql = "SELECT id FROM simulations WHERE run_id = ?";
             PreparedStatement stmt = con.prepareStatement(sql);
