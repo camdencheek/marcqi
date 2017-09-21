@@ -5,18 +5,26 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 
+/**
+ * A set of parameters to run the simulation with
+ */
 public class ParameterSet {
-    public long id = 0;
-    public long run_id;
-    public double theta_s;
-    public double[] theta_i;
-    public double[][] alpha;
-    public double[][] beta;
-    public double study_length;
-    public int numCases;
 
+    public long id = 0; // database id
+    public long run_id; // corresponding run id
+    public double theta_s; // proportion of cases female
+    public double[] theta_i; // proportion of [0] male cases or [1] female cases with implant of interest
+    public double[][] alpha; // weibull alpha for [sex][implant]
+    public double[][] beta; // weibull beta for [sex][implant]
+    public double study_length; // Length of study. Not currently used
+    public int numCases; // Number of cases per simulation
+
+    // Insert the parameter set into the database
     public void insert_db(Connection con) {
+
+        // Unprepared SQL query
         String query = "insert into parameter_sets values (default,default,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
         try {
             PreparedStatement stmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 

@@ -24,7 +24,7 @@ def plot3d(x,y,z, ax):
 
 def main(args):
 
-    engine = create_engine("mysql+pymysql://root:password@192.168.1.56/revgen")
+    engine = create_engine("mysql+pymysql://root:rBep8emek!@192.168.1.56/revgen")
 
     sql = """
         select
