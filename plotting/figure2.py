@@ -20,7 +20,7 @@ def plot_2d(ax, run_id, engine):
     from graph_results
         inner join simulations on graph_results.simulation_id = simulations.id
         inner join parameter_sets on simulations.parameter_set_id=parameter_sets.id
-    where parameter_sets.run_id = 18
+    where parameter_sets.run_id = 21
     group by effect_size;
     """.format(run_id)
 
@@ -70,7 +70,7 @@ def main(args):
 
     fig.tight_layout(rect=[0.05,0.05, 0.95,0.95])
 
-    plt.savefig("../figures/figure2", dpi=300)
+    plt.savefig("../figures/figure2old", dpi=300)
 
 
 if __name__ == '__main__':

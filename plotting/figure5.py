@@ -57,7 +57,7 @@ def plot_3d(ax, run_id, engine):
 
 
 def main(args):
-    engine = create_engine("mysql+pymysql://root:rBep8emek!@192.168.1.56/revgen")
+    engine = create_engine("mysql+pymysql://root:password@localhost/revgen")
 
     fig = plt.figure(figsize=(3, 9))
 
@@ -66,7 +66,7 @@ def main(args):
     ax2 = fig.add_subplot(3,1,2, projection='3d')
     ax3 = fig.add_subplot(3,1,3, projection='3d')
 
-    plot_3d(ax1, 1, engine)
+    plot_3d(ax1, 22, engine)
     plot_3d(ax2, 3, engine)
     plot_3d(ax3, 4, engine)
 
