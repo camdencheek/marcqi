@@ -9,6 +9,11 @@ public class Utils {
         long eta = current == 0 ? 0 : 
             (total - current) * (System.currentTimeMillis() - startTime) / current;
 
+        long e = System.currentTimeMillis() - startTime;
+        String elapsed = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(e),
+                    TimeUnit.MILLISECONDS.toMinutes(e) % TimeUnit.HOURS.toMinutes(1),
+                    TimeUnit.MILLISECONDS.toSeconds(e) % TimeUnit.MINUTES.toSeconds(1));
+
         String etaHms = current == 0 ? "N/A" : 
             String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(eta),
                     TimeUnit.MILLISECONDS.toMinutes(eta) % TimeUnit.HOURS.toMinutes(1),
@@ -19,7 +24,8 @@ public class Utils {
         string
             .append('\r')
             .append(String.format("%d%%", percent))
-            .append(String.format(" %d/%d, ETA: %s", current, total, etaHms));
+            .append(String.format(" %d/%d, %s  ETA: %s", 
+                        current, total, elapsed, etaHms));
 
         System.out.print(string);
     }

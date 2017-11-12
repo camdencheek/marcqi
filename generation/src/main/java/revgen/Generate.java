@@ -40,7 +40,7 @@ public class Generate {
             con.setAutoCommit(false);
 
             // Create a new run with the given description
-            Run run = new Run("Test without inserting cases");
+            Run run = new Run("3D, MARCQI, E_I = 1.5");
 
             // Insert the run into the database and get the run id
             long runID = run.insert_db(con);
@@ -52,30 +52,31 @@ public class Generate {
             // Counter for number of simluations
             int totalSimulations = 0;
 
-            for (double theta_i0 = 0; theta_i0 <= 0.3; theta_i0 += 0.01) {
-                for (double theta_i1 = 0; theta_i1 <= 0.3; theta_i1 += 0.01) {
-                    ParameterSet params = new ParameterSet(
-                            runID, // database ID of the current run
-                            0.45, // Proportion of cases male
-                            theta_i0, theta_i1, // θ_I_F and θ_I_M
-                            0.71, 0.71, 0.71, 0.71, // alpha 00, 01, 10, 11
-                            182, 91, 171, 85.5, // beta 00, 01, 10, 11
-                            5,  // Length of study
-                            //20863); // Number of cases per simulation
-                            799); // Number of cases per simulation
+            double effect_size = 1.5;
+            for ( double p_IF = 0; p_IF <= 0.3; p_IF += 0.02) {
+            for ( double p_IM = 0; p_IF <= 0.3; p_IF += 0.02) {
+                ParameterSet params = new ParameterSet(
+                        runID, // database ID of the current run
+                        0.45, // Proportion of cases male
+                        p_IF, p_IM, // θ_I_F and θ_I_M
+                        0.71, 0.71, 0.71, 0.71, // alpha 00, 01, 10, 11
+                        182, 181 / effect_size, 171, 171 / effect_size, // beta 00, 01, 10, 11
+                        5,  // Length of study
+                        //20863); // Number of cases per simulation
+                        799); // Number of cases per simulation
 
-                    params.insert_db(con);
-                    con.commit();
+                params.insert_db(con);
+                con.commit();
 
-                    CaseGenerator gen = new CaseGenerator(params);
+                CaseGenerator gen = new CaseGenerator(params);
 
-                    int nSims = 10000;
-                    for (int i = 0; i < nSims; i++) {
-                        totalSimulations++;
-                        SimulationRunner runner = new SimulationRunner(params, runID, con);
-                        executor.execute(runner);
-                    }
+                int nSims = 10000;
+                for (int i = 0; i < nSims; i++) {
+                    totalSimulations++;
+                    SimulationRunner runner = new SimulationRunner(params, runID, con);
+                    executor.execute(runner);
                 }
+            }
             }
 
             // Tell the thread pool to stop accepting jobs
